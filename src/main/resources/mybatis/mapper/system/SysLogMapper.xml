@@ -1,0 +1,72 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.cpms.single.modules.system.mapper.SysLogMapper">
+
+    <select id="listLogCount" parameterType="com.cpms.single.modules.system.dto.QueryLogDTO" resultType="java.lang.Integer">
+        SELECT
+        COUNT(1)
+        FROM
+        cpms_system_log csl
+        <where>
+            csl.del_flag = 0
+            <if test="title !=null and title !=''">
+                and csl.title like CONCAT('%',#{title},'%' )
+            </if>
+            <if test="tenantId !=null">
+                and csl.tenant_id = #{tenantId}
+            </if>
+            <if test="serviceName !=null and serviceName !=''">
+                and csl.service_name like CONCAT('%',#{serviceName},'%' )
+            </if>
+            <if test="handleIp !=null and handleIp !=''">
+                and csl.handle_ip = #{handleIp}
+            </if>
+            <if test="reqUrl !=null and reqUrl !=''">
+                and csl.req_url like CONCAT('%',#{reqUrl},'%' )
+            </if>
+            <if test="createBy !=null and createBy !=''">
+                and csl.create_by like CONCAT('%',#{createBy},'%' )
+            </if>
+            <if test="handleStart !=null and handleEnd !=null">
+                and csl.create_time <![CDATA[>=]]> #{handleStart}
+                and csl.create_time <![CDATA[<=]]> #{handleEnd}
+            </if>
+        </where>
+    </select>
+
+    <select id="listLog" parameterType="com.cpms.single.modules.system.dto.QueryLogDTO" resultType="com.cpms.single.modules.system.vo.SysLogVO">
+        SELECT
+        csl.*
+        FROM
+        cpms_system_log csl
+        <where>
+            csl.del_flag = 0
+            <if test="title !=null and title !=''">
+                and csl.title like CONCAT('%',#{title},'%' )
+            </if>
+            <if test="tenantId !=null">
+                and csl.tenant_id = #{tenantId}
+            </if>
+            <if test="serviceName !=null and serviceName !=''">
+                and csl.service_name like CONCAT('%',#{serviceName},'%' )
+            </if>
+            <if test="handleIp !=null and handleIp !=''">
+                and csl.handle_ip = #{handleIp}
+            </if>
+            <if test="reqUrl !=null and reqUrl !=''">
+                and csl.req_url like CONCAT('%',#{reqUrl},'%' )
+            </if>
+            <if test="createBy !=null and createBy !=''">
+                and csl.create_by like CONCAT('%',#{createBy},'%' )
+            </if>
+            <if test="handleStart !=null and handleEnd !=null">
+                and csl.create_time <![CDATA[>=]]> #{handleStart}
+                and csl.create_time <![CDATA[<=]]> #{handleEnd}
+            </if>
+        </where>
+        ORDER BY create_time DESC
+        limit #{startIndex},#{pageSize}
+    </select>
+</mapper>

@@ -1,0 +1,70 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.cpms.single.modules.system.mapper.SysDeptMapper">
+
+    <select id="listDeptCount" parameterType="com.cpms.single.modules.system.dto.QueryDeptDTO" resultType="java.lang.Integer">
+        SELECT
+        count(1)
+        FROM  cpms_system_dept d INNER JOIN cpms_system_tenant t  ON  t.tenant_id = d.tenant_id
+        <where>
+            d.del_flag = 0
+            <if test="deptName !=null and deptName !=''">
+                and d.dept_name like CONCAT('%',#{deptName},'%' )
+            </if>
+            <if test="tenantId !=null ">
+                and d.tenant_id = #{tenantId}
+            </if>
+            <if test="tenantName !=null and tenantName !=''">
+                and t.tenant_name like CONCAT('%',#{tenantName},'%' )
+            </if>
+        </where>
+    </select>
+
+    <select id="listDept" parameterType="com.cpms.single.modules.system.dto.QueryDeptDTO" resultType="com.cpms.single.modules.system.vo.SysDeptVO">
+        SELECT
+        d.dept_id,
+        d.dept_name,
+        d.dept_desc,
+        d.dept_sort,
+        d.parent_id,
+        d.tenant_id,
+        d.create_time,
+        d.update_time,
+        d.create_by,
+        d.update_by
+        FROM cpms_system_dept d
+        <where>
+            d.del_flag = 0
+            <if test="deptName !=null and deptName !=''">
+                and d.dept_name like CONCAT('%',#{deptName},'%' )
+            </if>
+            <if test="tenantId !=null ">
+                and d.tenant_id = #{tenantId}
+            </if>
+        </where>
+        ORDER BY d.dept_sort DESC
+        limit #{startIndex},#{pageSize}
+    </select>
+
+    <select id="findTenantDeptNodes" resultType="com.cpms.single.modules.system.entity.SysDeptEntity">
+        SELECT
+        d.dept_id,
+        d.tenant_id,
+        d.parent_id
+        FROM cpms_system_dept d
+        WHERE d.tenant_id IN (
+            SELECT d2.tenant_id FROM
+             cpms_system_dept d2
+            <where>
+                <if test="deptId !=null ">
+                    and d2.dept_id = #{deptId}
+                </if>
+                <if test="tenantId !=null ">
+                    and d2.tenant_id = #{tenantId}
+                </if>
+            </where>
+        )
+    </select>
+</mapper>

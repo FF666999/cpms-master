@@ -1,0 +1,112 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.cpms.single.modules.system.mapper.SysUserMapper">
+
+    <select id="querySysUserInfo" parameterType="com.cpms.single.modules.auth.dto.SysUserLginDTO" resultType="com.cpms.single.modules.system.bo.SysUserLoginBO">
+        SELECT
+          u.user_id,
+          u.user_account,
+          u.user_name,
+          u.last_login_time,
+          u.user_avatar,
+          u.user_sex,
+          u.user_mobile,
+          u.user_status,
+          u.dept_id,
+          u.user_password,
+          t.tenant_id,
+          t.tenant_name,
+          t.tenant_status,
+          t.tenant_code,
+          d.dept_name,
+          p.post_name,
+          p.post_id
+        FROM
+        ( cpms_system_user u,
+        cpms_system_tenant t)
+        LEFT JOIN cpms_system_dept d ON d.dept_id = u.dept_id
+        LEFT JOIN cpms_system_post p ON u.post_id = p.post_id
+        WHERE
+         u.user_account = #{userAccount}
+         AND u.tenant_id= t.tenant_id
+         AND u.del_flag = 0
+         AND t.del_flag = 0
+    </select>
+
+    <select id="listUserCount" parameterType="com.cpms.single.modules.system.dto.QueryUserDTO" resultType="java.lang.Integer">
+        select count(1)
+        from
+        cpms_system_user u
+        LEFT JOIN cpms_system_dept d ON d.dept_id = u.dept_id
+        LEFT JOIN cpms_system_post p ON u.post_id = p.post_id
+        LEFT JOIN cpms_system_tenant t ON u.tenant_id = t.tenant_id
+        <where>
+            and u.del_flag = 0
+            <if test="userDto.tenantId !=null">
+                and u.tenant_id = #{userDto.tenantId}
+            </if>
+            <if test="userDto.userRealName !=null and userDto.userRealName !=''">
+                and u.user_real_name = #{userDto.userRealName}
+            </if>
+            <if test="userDto.userAccount !=null and userDto.userAccount != ''">
+                and u.user_account = #{userDto.userAccount}
+            </if>
+            <if test="depts !=null and depts.size > 0">
+                and u.dept_id in
+                <foreach collection="depts" item="item" open="(" separator=","  close=")">
+                    #{item}
+                </foreach>
+            </if>
+        </where>
+    </select>
+
+    <select id="listUser" parameterType="com.cpms.single.modules.system.dto.QueryUserDTO" resultType="com.cpms.single.modules.system.vo.SysUserVO">
+        select
+        u.user_id,
+        u.user_account,
+        u.user_name,
+        u.user_real_name,
+        u.user_status,
+        u.create_time,
+        u.update_time,
+        u.create_by,
+        u.update_by,
+        u.sys_data,
+        d.dept_name,
+        d.dept_id,
+        p.post_name,
+        p.post_id,
+        t.tenant_name,
+        t.tenant_id,
+        (  SELECT GROUP_CONCAT(r.role_name)  FROM cpms_system_role r WHERE role_id IN ( SELECT ru.role_id FROM cpms_system_role_user ru  WHERE ru.user_id = u.user_id ) ) AS roleNames,
+        (  SELECT GROUP_CONCAT(r.role_id)  FROM cpms_system_role r WHERE role_id IN ( SELECT ru.role_id FROM cpms_system_role_user ru  WHERE ru.user_id = u.user_id ) ) AS roleIds
+        from
+        cpms_system_user u
+        LEFT JOIN cpms_system_dept d ON d.dept_id = u.dept_id
+        LEFT JOIN cpms_system_post p ON u.post_id = p.post_id
+        LEFT JOIN cpms_system_tenant t ON u.tenant_id = t.tenant_id
+        <where>
+            and u.del_flag = 0
+            <if test="userDto.tenantId !=null">
+                and u.tenant_id = #{userDto.tenantId}
+            </if>
+            <if test="userDto.userRealName !=null and userDto.userRealName !=''">
+                and u.user_real_name = #{userDto.userRealName}
+            </if>
+            <if test="userDto.userAccount !=null and userDto.userAccount != ''">
+                and u.user_account = #{userDto.userAccount}
+            </if>
+            <if test="depts !=null and depts.size > 0">
+                and u.dept_id in
+                <foreach collection="depts" item="item" open="(" separator=","  close=")">
+                    #{item}
+                </foreach>
+            </if>
+        </where>
+        ORDER BY u.create_time ASC
+        limit #{userDto.startIndex},#{userDto.pageSize}
+    </select>
+
+</mapper>

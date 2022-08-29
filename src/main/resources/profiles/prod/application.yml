@@ -1,0 +1,14 @@
+server:
+  port: 8001
+  servlet:
+    context-path: /cpmsService  # 请求接口的前缀
+# Spring
+spring:
+  application:
+    name: cpms-server
+
+  #******** 激活自定义配置文件 ****#
+  profiles:
+    active: @profiles.active@
+    include: jdbc,redis,system
+
